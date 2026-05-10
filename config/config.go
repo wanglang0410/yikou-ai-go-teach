@@ -90,7 +90,7 @@ func InitConfig(env string) {
 
 	// 设置配置文件名和路径
 	viper.SetConfigName(configName) // 配置文件名称
-	viper.SetConfigType("yaml")     // 配置文件类型
+	viper.SetConfigType("yml")      // 配置文件类型
 	viper.AddConfigPath(configPath) // 配置文件路径
 
 	// 读取环境变量

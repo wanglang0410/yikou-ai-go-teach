@@ -258,7 +258,7 @@ func InitConfig(env string) {
 
 	// 设置配置文件名和路径
 	viper.SetConfigName(configName) // 配置文件名称
-	viper.SetConfigType("yaml")     // 配置文件类型
+	viper.SetConfigType("yml")     // 配置文件类型
 	viper.AddConfigPath(configPath) // 配置文件路径
 
 	// 读取环境变量
@@ -293,7 +293,7 @@ func (c *DatabaseConfig) GetDSN() string {
 
 #### 4. 创建配置文件
 
-**新建默认配置文件 `config/config.yaml`：**
+**新建默认配置文件 `config/config.yml`：**
 
 ```yaml
 # 服务器配置
@@ -327,9 +327,9 @@ ai:
 
 **配置文件命名规则：**
 
-- `config.yaml` - 默认配置文件
-- `config-local.yaml` - 本地开发环境（使用 `-env local`）
-- `config-prod.yaml` - 生产环境（使用 `-env prod`）
+- `config.yml` - 默认配置文件
+- `config-local.yml` - 本地开发环境（使用 `-env local`）
+- `config-prod.yml` - 生产环境（使用 `-env prod`）
 
 #### 5. 在主程序中使用配置
 
