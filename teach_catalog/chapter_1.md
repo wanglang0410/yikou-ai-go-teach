@@ -912,7 +912,3 @@ swagger文档能正常访问后，就可以直接进行接口测试了
 // @Param        request  body      CreateUserRequest  true  "创建用户请求"
 // @Param        token    header    string  true  "认证令牌"
 ```
-
-## 下一章预告
-
-下一章我们将学习**目录结构设计与项目分层**，教你如何设计一个清晰、易维护的企业级项目结构。敬请期待！
