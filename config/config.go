@@ -35,9 +35,14 @@ type DatabaseConfig struct {
 
 // AIConfig AI服务配置
 type AIConfig struct {
-	APIKey  string `mapstructure:"api_key"`  // API密钥
-	Model   string `mapstructure:"model"`    // 模型名称
-	BaseURL string `mapstructure:"base_url"` // API基础URL
+	ChatModel ChatModelConfig `yaml:"chat-model" mapstructure:"chat-model"`
+}
+
+type ChatModelConfig struct {
+	BaseURL   string `yaml:"base-url" mapstructure:"base-url"`
+	APIKey    string `yaml:"api-key" mapstructure:"api-key"`
+	ModelName string `yaml:"model-name" mapstructure:"model-name"`
+	MemoryTTL int    `yaml:"memory-ttl" mapstructure:"memory-ttl"`
 }
 
 // GetProjectRootPath 获取项目根路径
@@ -68,12 +73,21 @@ func GetProjectRootPath() (string, error) {
 	}
 }
 
+var envFlag string
+
+func SetEnvFlag(flag string) {
+	envFlag = flag
+}
+
 // InitConfig 初始化配置
 // env 参数用于指定配置文件后缀，如 "local" 会读取 config-local.yaml
 func InitConfig() *Config {
-	// 解析命令行参数
-	env := flag.String("env", "", "运行环境，如 local, dev, test, prod")
-	flag.Parse()
+	if envFlag == "" {
+		// 解析命令行参数
+		env := flag.String("env", "", "运行环境，如 local, dev, test, prod")
+		flag.Parse()
+		envFlag = *env
+	}
 
 	// 获取项目根路径
 	rootPath, err := GetProjectRootPath()
@@ -86,8 +100,8 @@ func InitConfig() *Config {
 
 	// 确定配置文件名称
 	configName := "config"
-	if *env != "" {
-		configName = fmt.Sprintf("config-%s", *env)
+	if envFlag != "" {
+		configName = fmt.Sprintf("config-%s", envFlag)
 	}
 
 	// 设置配置文件名和路径

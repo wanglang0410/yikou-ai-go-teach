@@ -14,6 +14,7 @@ database:
 
 # AI服务配置
 ai:
-  api_key: your_api_key
-  model: gpt-3.5-turbo
-  base_url: https://api.openai.com/v1
+  chat-model:
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    api-key: <你的api-key>
+    model-name: qwen3.5-plus
