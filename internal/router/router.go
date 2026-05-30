@@ -21,7 +21,8 @@ import (
 )
 
 // RegisterRoutes 注册路由
-func RegisterRoutes(h *server.Hertz, url func(config *swagger.Config), db *gorm.DB, userHandler *handler.UserHandler) {
+func RegisterRoutes(h *server.Hertz, url func(config *swagger.Config), db *gorm.DB,
+	userHandler *handler.UserHandler, appHandler *handler.AppHandler) {
 	// 注册全局中间件
 	// 处理跨域问题
 	h.Use(cors.New(cors.Config{
@@ -56,6 +57,25 @@ func RegisterRoutes(h *server.Hertz, url func(config *swagger.Config), db *gorm.
 		userRoute.POST("/delete", middleware.AuthMiddleware(enum.AdminRole, db), userHandler.DeleteUser)
 		userRoute.POST("/update", middleware.AuthMiddleware(enum.AdminRole, db), userHandler.UpdateUser)
 		userRoute.POST("/list/page/vo", middleware.AuthMiddleware(enum.AdminRole, db), userHandler.ListUserVoByPage)
+	}
+
+	appRoute := h.Group("/app")
+	{
+		appRoute.POST("/good/list/page/vo", appHandler.ListGoodApp)
+		appRoute.GET("/get/vo", middleware.AuthMiddleware(enum.UserRole, db), appHandler.GetAppVo)
+
+		// 需要登录的接口
+		appRoute.GET("/chat/gen/code", middleware.AuthMiddleware(enum.UserRole, db), appHandler.ChatToGenCode)
+		appRoute.POST("/my/list/page/vo", middleware.AuthMiddleware(enum.UserRole, db), appHandler.ListMyApp)
+		appRoute.POST("/add", middleware.AuthMiddleware(enum.UserRole, db), appHandler.AddApp)
+		appRoute.POST("/update", middleware.AuthMiddleware(enum.UserRole, db), appHandler.UpdateApp)
+		appRoute.POST("/delete", middleware.AuthMiddleware(enum.UserRole, db), appHandler.DeleteApp)
+
+		// 需要管理员权限的接口
+		appRoute.POST("/admin/update", middleware.AuthMiddleware(enum.AdminRole, db), appHandler.AdminUpdateApp)
+		appRoute.POST("/admin/delete", middleware.AuthMiddleware(enum.AdminRole, db), appHandler.AdminDeleteApp)
+		appRoute.GET("/admin/get/vo", middleware.AuthMiddleware(enum.AdminRole, db), appHandler.AdminGetAppVo)
+		appRoute.POST("/admin/list/page/vo", middleware.AuthMiddleware(enum.AdminRole, db), appHandler.AdminListApp)
 	}
 }
 

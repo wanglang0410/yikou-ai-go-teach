@@ -1,4 +1,178 @@
 definitions:
+  api.YiKouAppAddRequest:
+    properties:
+      initPrompt:
+        type: string
+    type: object
+  api.YiKouAppAddResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: string
+      message:
+        type: string
+    type: object
+  api.YiKouAppAdminDeleteResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: boolean
+      message:
+        type: string
+    type: object
+  api.YiKouAppAdminGetResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/vo.AppVo'
+      message:
+        type: string
+    type: object
+  api.YiKouAppAdminListRequest:
+    properties:
+      appName:
+        type: string
+      codeGenType:
+        type: string
+      cover:
+        type: string
+      deployKey:
+        type: string
+      deployedTime:
+        type: string
+      id:
+        type: string
+      initPrompt:
+        type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      priority:
+        type: integer
+      sortField:
+        type: string
+      sortOrder:
+        type: string
+      userId:
+        type: integer
+    type: object
+  api.YiKouAppAdminListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/response.PageResponse-model_App'
+      message:
+        type: string
+    type: object
+  api.YiKouAppAdminUpdateRequest:
+    properties:
+      appName:
+        type: string
+      cover:
+        type: string
+      id:
+        type: string
+      priority:
+        type: integer
+    type: object
+  api.YiKouAppAdminUpdateResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: boolean
+      message:
+        type: string
+    type: object
+  api.YiKouAppDeleteResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: boolean
+      message:
+        type: string
+    type: object
+  api.YiKouAppFeaturedListRequest:
+    properties:
+      appName:
+        type: string
+      codeGenType:
+        type: string
+      initPrompt:
+        type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      priority:
+        type: integer
+      sortField:
+        type: string
+      sortOrder:
+        type: string
+    type: object
+  api.YiKouAppFeaturedListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/response.PageResponse-vo_AppVo'
+      message:
+        type: string
+    type: object
+  api.YiKouAppGetVoResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/vo.AppVo'
+      message:
+        type: string
+    type: object
+  api.YiKouAppMyListRequest:
+    properties:
+      appName:
+        type: string
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      sortField:
+        type: string
+      sortOrder:
+        type: string
+    type: object
+  api.YiKouAppMyListResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/response.PageResponse-vo_AppVo'
+      message:
+        type: string
+    type: object
+  api.YiKouAppUpdateRequest:
+    properties:
+      appName:
+        type: string
+      id:
+        type: integer
+    type: object
+  api.YiKouAppUpdateResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        type: boolean
+      message:
+        type: string
+    type: object
   api.YiKouUserAddRequest:
     properties:
       userAccount:
@@ -141,6 +315,49 @@ definitions:
       message:
         type: string
     type: object
+  model.App:
+    properties:
+      appName:
+        description: 应用名称
+        type: string
+      codeGenType:
+        description: 代码生成类型（枚举）
+        type: string
+      cover:
+        description: 应用封面
+        type: string
+      createTime:
+        description: 创建时间
+        type: string
+      deployKey:
+        description: 部署标识
+        type: string
+      deployedTime:
+        description: 部署时间
+        type: string
+      editTime:
+        description: 编辑时间
+        type: string
+      id:
+        description: id
+        example: "0"
+        type: string
+      initPrompt:
+        description: 应用初始化的 prompt
+        type: string
+      isDelete:
+        description: 是否删除
+        type: integer
+      priority:
+        description: 优先级
+        type: integer
+      updateTime:
+        description: 更新时间
+        type: string
+      userId:
+        description: 创建用户id
+        type: integer
+    type: object
   model.User:
     properties:
       create_time:
@@ -183,6 +400,40 @@ definitions:
       id:
         type: integer
     type: object
+  response.PageResponse-model_App:
+    properties:
+      optimizeCountQuery:
+        type: boolean
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      records:
+        items:
+          $ref: '#/definitions/model.App'
+        type: array
+      totalPage:
+        type: integer
+      totalRow:
+        type: integer
+    type: object
+  response.PageResponse-vo_AppVo:
+    properties:
+      optimizeCountQuery:
+        type: boolean
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      records:
+        items:
+          $ref: '#/definitions/vo.AppVo'
+        type: array
+      totalPage:
+        type: integer
+      totalRow:
+        type: integer
+    type: object
   response.PageResponse-vo_UserVo:
     properties:
       optimizeCountQuery:
@@ -199,6 +450,35 @@ definitions:
         type: integer
       totalRow:
         type: integer
+    type: object
+  vo.AppVo:
+    properties:
+      appName:
+        type: string
+      codeGenType:
+        type: string
+      cover:
+        type: string
+      createTime:
+        type: string
+      deployKey:
+        type: string
+      deployedTime:
+        type: string
+      id:
+        example: "0"
+        type: string
+      initPrompt:
+        type: string
+      priority:
+        type: integer
+      updateTime:
+        type: string
+      user:
+        $ref: '#/definitions/vo.UserVo'
+      userId:
+        example: "0"
+        type: string
     type: object
   vo.UserVo:
     properties:
@@ -236,6 +516,246 @@ paths:
           schema:
             $ref: '#/definitions/handler.PingResponse'
       summary: 测试接口
+  /app/add:
+    post:
+      consumes:
+      - application/json
+      description: 新增应用
+      parameters:
+      - description: 新增应用请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppAddRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 应用ID
+          schema:
+            $ref: '#/definitions/api.YiKouAppAddResponse'
+      summary: 新增应用
+      tags:
+      - 应用模块
+  /app/admin/delete:
+    post:
+      consumes:
+      - application/json
+      description: 管理员删除应用
+      parameters:
+      - description: 删除应用请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除结果
+          schema:
+            $ref: '#/definitions/api.YiKouAppAdminDeleteResponse'
+      summary: 管理员删除应用
+      tags:
+      - 应用模块
+  /app/admin/get/vo:
+    get:
+      consumes:
+      - application/json
+      description: 管理员根据ID获取应用VO
+      parameters:
+      - description: 应用ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 应用VO信息
+          schema:
+            $ref: '#/definitions/api.YiKouAppAdminGetResponse'
+      summary: 管理员根据ID获取应用VO
+      tags:
+      - 应用模块
+  /app/admin/list/page/vo:
+    post:
+      consumes:
+      - application/json
+      description: 管理员分页获取应用列表
+      parameters:
+      - description: 分页查询请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppAdminListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页应用列表
+          schema:
+            $ref: '#/definitions/api.YiKouAppAdminListResponse'
+      summary: 管理员分页获取应用列表
+      tags:
+      - 应用模块
+  /app/admin/update:
+    post:
+      consumes:
+      - application/json
+      description: 管理员更新应用
+      parameters:
+      - description: 更新应用请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppAdminUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新结果
+          schema:
+            $ref: '#/definitions/api.YiKouAppAdminUpdateResponse'
+      summary: 管理员更新应用
+      tags:
+      - 应用模块
+  /app/chat/gen/code:
+    get:
+      consumes:
+      - application/json
+      description: 应用聊天生成代码（流式）
+      parameters:
+      - description: 应用ID
+        in: query
+        name: appId
+        required: true
+        type: string
+      - description: 消息
+        in: query
+        name: message
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 应用聊天生成代码（流式）
+      tags:
+      - 应用模块
+  /app/delete:
+    post:
+      consumes:
+      - application/json
+      description: 删除应用
+      parameters:
+      - description: 删除应用请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/request.DeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除结果
+          schema:
+            $ref: '#/definitions/api.YiKouAppDeleteResponse'
+      summary: 删除应用
+      tags:
+      - 应用模块
+  /app/get/vo:
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取应用VO
+      parameters:
+      - description: 应用ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 应用VO信息
+          schema:
+            $ref: '#/definitions/api.YiKouAppGetVoResponse'
+      summary: 根据ID获取应用VO
+      tags:
+      - 应用模块
+  /app/good/list/page/vo:
+    post:
+      consumes:
+      - application/json
+      description: 分页获取精选应用列表
+      parameters:
+      - description: 分页查询请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppFeaturedListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页应用VO列表
+          schema:
+            $ref: '#/definitions/api.YiKouAppFeaturedListResponse'
+      summary: 分页获取精选应用列表
+      tags:
+      - 应用模块
+  /app/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新应用
+      parameters:
+      - description: 更新应用请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新结果
+          schema:
+            $ref: '#/definitions/api.YiKouAppUpdateResponse'
+      summary: 更新应用
+      tags:
+      - 应用模块
+  /application/list/my:
+    post:
+      consumes:
+      - application/json
+      description: 分页获取我的应用列表
+      parameters:
+      - description: 分页查询请求
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/api.YiKouAppMyListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页应用VO列表
+          schema:
+            $ref: '#/definitions/api.YiKouAppMyListResponse'
+      summary: 分页获取我的应用列表
+      tags:
+      - 应用模块
   /user/add:
     post:
       consumes:

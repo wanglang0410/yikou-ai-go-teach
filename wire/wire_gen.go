@@ -15,6 +15,12 @@ import (
 	"strconv"
 	"yikou-ai-go-teach/config"
 	"yikou-ai-go-teach/docs"
+	"yikou-ai-go-teach/internal/ai"
+	"yikou-ai-go-teach/internal/ai/agent"
+	"yikou-ai-go-teach/internal/ai/llm"
+	"yikou-ai-go-teach/internal/core"
+	"yikou-ai-go-teach/internal/core/parser"
+	"yikou-ai-go-teach/internal/core/saver"
 	"yikou-ai-go-teach/internal/dal"
 	"yikou-ai-go-teach/internal/handler"
 	"yikou-ai-go-teach/internal/logic"
@@ -30,7 +36,14 @@ func InitializeApp() (*server.Hertz, error) {
 	db := dal.InitDB(configConfig)
 	userService := logic.NewUserService(db)
 	userHandler := handler.NewUserHandler(userService)
-	hertz := initServer(configConfig, userHandler, db)
+	chatModelWrapper := llm.NewChatModel(configConfig)
+	codeGenAgent := agent.NewTestCodeGenAgent(chatModelWrapper)
+	codeParserExecutor := parser.NewCodeParserExecutor()
+	codeFileSaverExecutor := saver.NewCodeFileSaverExecutor()
+	yiKouAiCodegenFacade := core.NewYiKouAiCodegenFacade(codeGenAgent, codeParserExecutor, codeFileSaverExecutor)
+	appService := logic.NewAppService(yiKouAiCodegenFacade, userService, db)
+	appHandler := handler.NewAppHandler(appService, userService)
+	hertz := initServer(configConfig, userHandler, appHandler, db)
 	return hertz, nil
 }
 
@@ -39,17 +52,20 @@ func InitializeApp() (*server.Hertz, error) {
 // 配置依赖
 var configSet = wire.NewSet(config.InitConfig)
 
+var llmSet = wire.NewSet(llm.NewChatModel)
+
 // 数据库依赖
 var dbSet = wire.NewSet(dal.InitDB)
 
 // Service依赖
-var serviceSet = wire.NewSet(logic.NewUserService, wire.Bind(new(service.IUserService), new(*logic.UserService)))
+var serviceSet = wire.NewSet(core.NewYiKouAiCodegenFacade, logic.NewAppService, wire.Bind(new(service.IAppService), new(*logic.AppService)), logic.NewUserService, wire.Bind(new(service.IUserService), new(*logic.UserService)), agent.NewTestCodeGenAgent, wire.Bind(new(ai.IYiKouAiCodegenService), new(*agent.CodeGenAgent)))
 
 // Handler依赖
-var handlerSet = wire.NewSet(handler.NewUserHandler)
+var handlerSet = wire.NewSet(handler.NewUserHandler, handler.NewAppHandler)
 
 // initServer 初始化 Web 服务器
-func initServer(cfg *config.Config, userHandler *handler.UserHandler, db *gorm.DB) *server.Hertz {
+func initServer(cfg *config.Config, userHandler *handler.UserHandler, appHandler *handler.AppHandler,
+	db *gorm.DB) *server.Hertz {
 	docs.SwaggerInfo.
 		Host = fmt.Sprintf("localhost:%d", cfg.Server.Port)
 	docs.SwaggerInfo.
@@ -59,6 +75,6 @@ func initServer(cfg *config.Config, userHandler *handler.UserHandler, db *gorm.D
 	url := swagger.URL(swaggerPath)
 
 	h := server.Default(server.WithHostPorts(":"+strconv.Itoa(cfg.Server.Port)), server.WithBasePath(cfg.Server.ContextPath))
-	router.RegisterRoutes(h, url, db, userHandler)
+	router.RegisterRoutes(h, url, db, userHandler, appHandler)
 	return h
 }

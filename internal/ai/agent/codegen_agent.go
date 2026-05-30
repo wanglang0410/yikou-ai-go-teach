@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/cloudwego/eino/schema"
 	"yikou-ai-go-teach/internal/ai/aimodel"
+	"yikou-ai-go-teach/internal/ai/llm"
 	"yikou-ai-go-teach/internal/ai/myprompt"
 	"yikou-ai-go-teach/pkg/enum"
 
@@ -17,6 +18,14 @@ func NewCodeGenAgent(chatModel ChatModelWrapperAdaptor, codeGenType enum.CodeGen
 	return &CodeGenAgent{
 		BaseAgent: baseAgent,
 		agentType: codeGenType,
+	}
+}
+
+func NewTestCodeGenAgent(chatModel *llm.ChatModelWrapper) *CodeGenAgent {
+	baseAgent := NewBaseAgent(chatModel)
+	return &CodeGenAgent{
+		BaseAgent: baseAgent,
+		agentType: enum.HtmlCodeGen,
 	}
 }
 

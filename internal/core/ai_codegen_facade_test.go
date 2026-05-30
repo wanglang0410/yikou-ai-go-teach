@@ -37,7 +37,7 @@ func TestYiKouAiCodegenFacade_GenCodeStreamAndSave(t *testing.T) {
 	parserExecutor := parser.NewCodeParserExecutor()
 	fileSaverExecutor := saver.NewCodeFileSaverExecutor()
 	aiCodegenFacade := NewYiKouAiCodegenFacade(codeGenAgent, parserExecutor, fileSaverExecutor)
-	resp, err := aiCodegenFacade.GenCodeStreamAndSave(context.Background(), "帮我生成一个日常记录网站", enum.MultiFileGen)
+	resp, err := aiCodegenFacade.GenCodeStreamAndSave(context.Background(), "帮我生成一个日常记录网站", enum.MultiFileGen, 1)
 	if err != nil {
 		panic(err)
 	}

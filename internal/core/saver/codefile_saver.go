@@ -88,12 +88,12 @@ type CodeFileSaverTemplate[T any] struct {
 	CodeFileSaver[T]
 }
 
-func (d *CodeFileSaverTemplate[T]) saveCode(response T) (string, error) {
+func (d *CodeFileSaverTemplate[T]) saveCode(response T, appId int64) (string, error) {
 	err := d.validateInput(response)
 	if err != nil {
 		return "", err
 	}
-	dirPath, err := d.buildUniqueDir()
+	dirPath, err := d.buildUniqueDir(appId)
 	if err != nil {
 		return "", err
 	}
@@ -102,17 +102,14 @@ func (d *CodeFileSaverTemplate[T]) saveCode(response T) (string, error) {
 
 // buildUniqueDir 构建唯一的目录名
 // 目录名格式: {代码生成类型}_{唯一ID}
-func (d *CodeFileSaverTemplate[T]) buildUniqueDir() (string, error) {
-	// 生成雪花id
-	var sf = sonyflake.NewSonyflake(sonyflake.Settings{
-		MachineID: func() (uint16, error) { return 1, nil },
-	})
-	id, err := sf.NextID()
-	if err != nil {
-		return "", err
+func (d *CodeFileSaverTemplate[T]) buildUniqueDir(appId int64) (string, error) {
+	if appId == 0 {
+		return "", fmt.Errorf("应用id不能为空")
 	}
 	//构建唯一目录名
-	dirPath := fmt.Sprintf("%s_%s", d.getCodeType(), strconv.FormatUint(id, 20))
+	fileSaveDir, err := myfile.GetCodeOutputRoot()
+	uniqueDirName := fmt.Sprintf("%s_%s", d.getCodeType(), strconv.FormatUint(uint64(appId), 20))
+	dirPath := filepath.Join(fileSaveDir, uniqueDirName)
 	// 创建目录
 	err = os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
@@ -221,12 +218,12 @@ func NewCodeFileSaverExecutor() *CodeFileSaverExecutor {
 	}
 }
 
-func (e *CodeFileSaverExecutor) ExecuteSaver(content interface{}, saveType enum.CodeGenTypeEnum) (string, error) {
+func (e *CodeFileSaverExecutor) ExecuteSaver(content interface{}, saveType enum.CodeGenTypeEnum, appId int64) (string, error) {
 	switch saveType {
 	case enum.HtmlCodeGen:
-		return e.htmlCodeFileSaver.saveCode(content.(*aimodel.HtmlCodeResponse))
+		return e.htmlCodeFileSaver.saveCode(content.(*aimodel.HtmlCodeResponse), appId)
 	case enum.MultiFileGen:
-		return e.multiFileCodeFileSaver.saveCode(content.(*aimodel.MultiFileCodeResponse))
+		return e.multiFileCodeFileSaver.saveCode(content.(*aimodel.MultiFileCodeResponse), appId)
 	default:
 		return "", fmt.Errorf("不支持的代码文件类型: %s", saveType)
 	}

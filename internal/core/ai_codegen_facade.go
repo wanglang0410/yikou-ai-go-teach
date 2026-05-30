@@ -121,7 +121,7 @@ func (y *YiKouAiCodegenFacade) GenMultiFileCodeStreamAndSave(ctx context.Context
 	return nil
 }
 
-func (y *YiKouAiCodegenFacade) processCodeStream(respStream *schema.StreamReader[*schema.Message], typeStr enum.CodeGenTypeEnum) (*schema.StreamReader[*schema.Message], error) {
+func (y *YiKouAiCodegenFacade) processCodeStream(respStream *schema.StreamReader[*schema.Message], typeStr enum.CodeGenTypeEnum, appId int64) (*schema.StreamReader[*schema.Message], error) {
 	// 先复制流，一个用于处理，一个返回给上游
 	streams := respStream.Copy(2)
 	processingStream := streams[0]
@@ -147,7 +147,7 @@ func (y *YiKouAiCodegenFacade) processCodeStream(respStream *schema.StreamReader
 		if err != nil {
 			return
 		}
-		dirPath, err := y.codeFileSaverExecutor.ExecuteSaver(parsedResp, typeStr)
+		dirPath, err := y.codeFileSaverExecutor.ExecuteSaver(parsedResp, typeStr, appId)
 		if err != nil {
 			return
 		}
@@ -157,20 +157,20 @@ func (y *YiKouAiCodegenFacade) processCodeStream(respStream *schema.StreamReader
 	return returnStream, nil
 }
 
-func (y *YiKouAiCodegenFacade) GenCodeStreamAndSave(ctx context.Context, userMessage string, typeStr enum.CodeGenTypeEnum) (*schema.StreamReader[*schema.Message], error) {
+func (y *YiKouAiCodegenFacade) GenCodeStreamAndSave(ctx context.Context, userMessage string, typeStr enum.CodeGenTypeEnum, appId int64) (*schema.StreamReader[*schema.Message], error) {
 	switch typeStr {
 	case enum.HtmlCodeGen:
 		streamResp, err := y.codegenService.GenerateHtmlCodeStream(ctx, userMessage)
 		if err != nil {
 			return nil, err
 		}
-		return y.processCodeStream(streamResp, typeStr)
+		return y.processCodeStream(streamResp, typeStr, appId)
 	case enum.MultiFileGen:
 		streamResp, err := y.codegenService.GenerateMultiFileCodeStream(ctx, userMessage)
 		if err != nil {
 			return nil, err
 		}
-		return y.processCodeStream(streamResp, typeStr)
+		return y.processCodeStream(streamResp, typeStr, appId)
 	default:
 		return nil, fmt.Errorf("不支持的代码生成类型: %s", typeStr)
 	}

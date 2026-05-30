@@ -35,6 +35,374 @@ const docTemplate = `{
                 }
             }
         },
+        "/app/add": {
+            "post": {
+                "description": "新增应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "新增应用",
+                "parameters": [
+                    {
+                        "description": "新增应用请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAddRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "应用ID",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAddResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/admin/delete": {
+            "post": {
+                "description": "管理员删除应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "管理员删除应用",
+                "parameters": [
+                    {
+                        "description": "删除应用请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除结果",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminDeleteResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/admin/get/vo": {
+            "get": {
+                "description": "管理员根据ID获取应用VO",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "管理员根据ID获取应用VO",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "应用VO信息",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/admin/list/page/vo": {
+            "post": {
+                "description": "管理员分页获取应用列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "管理员分页获取应用列表",
+                "parameters": [
+                    {
+                        "description": "分页查询请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页应用列表",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/admin/update": {
+            "post": {
+                "description": "管理员更新应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "管理员更新应用",
+                "parameters": [
+                    {
+                        "description": "更新应用请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新结果",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppAdminUpdateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/chat/gen/code": {
+            "get": {
+                "description": "应用聊天生成代码（流式）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "应用聊天生成代码（流式）",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "应用ID",
+                        "name": "appId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "消息",
+                        "name": "message",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/app/delete": {
+            "post": {
+                "description": "删除应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "删除应用",
+                "parameters": [
+                    {
+                        "description": "删除应用请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除结果",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppDeleteResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/get/vo": {
+            "get": {
+                "description": "根据ID获取应用VO",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "根据ID获取应用VO",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "应用ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "应用VO信息",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppGetVoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/good/list/page/vo": {
+            "post": {
+                "description": "分页获取精选应用列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "分页获取精选应用列表",
+                "parameters": [
+                    {
+                        "description": "分页查询请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppFeaturedListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页应用VO列表",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppFeaturedListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/app/update": {
+            "post": {
+                "description": "更新应用",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "更新应用",
+                "parameters": [
+                    {
+                        "description": "更新应用请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新结果",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppUpdateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/application/list/my": {
+            "post": {
+                "description": "分页获取我的应用列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "应用模块"
+                ],
+                "summary": "分页获取我的应用列表",
+                "parameters": [
+                    {
+                        "description": "分页查询请求",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppMyListRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页应用VO列表",
+                        "schema": {
+                            "$ref": "#/definitions/api.YiKouAppMyListResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/add": {
             "post": {
                 "description": "新增用户",
@@ -351,6 +719,275 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api.YiKouAppAddRequest": {
+            "type": "object",
+            "properties": {
+                "initPrompt": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppAddResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppAdminDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppAdminGetResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/vo.AppVo"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppAdminListRequest": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "codeGenType": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "deployKey": {
+                    "type": "string"
+                },
+                "deployedTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initPrompt": {
+                    "type": "string"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "sortField": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.YiKouAppAdminListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/response.PageResponse-model_App"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppAdminUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.YiKouAppAdminUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppFeaturedListRequest": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "codeGenType": {
+                    "type": "string"
+                },
+                "initPrompt": {
+                    "type": "string"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "sortField": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppFeaturedListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/response.PageResponse-vo_AppVo"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppGetVoResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/vo.AppVo"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppMyListRequest": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "sortField": {
+                    "type": "string"
+                },
+                "sortOrder": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppMyListResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/response.PageResponse-vo_AppVo"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.YiKouAppUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.YiKouAppUpdateResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "api.YiKouUserAddRequest": {
             "type": "object",
             "properties": {
@@ -571,6 +1208,64 @@ const docTemplate = `{
                 }
             }
         },
+        "model.App": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "description": "应用名称",
+                    "type": "string"
+                },
+                "codeGenType": {
+                    "description": "代码生成类型（枚举）",
+                    "type": "string"
+                },
+                "cover": {
+                    "description": "应用封面",
+                    "type": "string"
+                },
+                "createTime": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "deployKey": {
+                    "description": "部署标识",
+                    "type": "string"
+                },
+                "deployedTime": {
+                    "description": "部署时间",
+                    "type": "string"
+                },
+                "editTime": {
+                    "description": "编辑时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "string",
+                    "example": "0"
+                },
+                "initPrompt": {
+                    "description": "应用初始化的 prompt",
+                    "type": "string"
+                },
+                "isDelete": {
+                    "description": "是否删除",
+                    "type": "integer"
+                },
+                "priority": {
+                    "description": "优先级",
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "创建用户id",
+                    "type": "integer"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -629,6 +1324,58 @@ const docTemplate = `{
                 }
             }
         },
+        "response.PageResponse-model_App": {
+            "type": "object",
+            "properties": {
+                "optimizeCountQuery": {
+                    "type": "boolean"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.App"
+                    }
+                },
+                "totalPage": {
+                    "type": "integer"
+                },
+                "totalRow": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.PageResponse-vo_AppVo": {
+            "type": "object",
+            "properties": {
+                "optimizeCountQuery": {
+                    "type": "boolean"
+                },
+                "pageNum": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/vo.AppVo"
+                    }
+                },
+                "totalPage": {
+                    "type": "integer"
+                },
+                "totalRow": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.PageResponse-vo_UserVo": {
             "type": "object",
             "properties": {
@@ -652,6 +1399,49 @@ const docTemplate = `{
                 },
                 "totalRow": {
                     "type": "integer"
+                }
+            }
+        },
+        "vo.AppVo": {
+            "type": "object",
+            "properties": {
+                "appName": {
+                    "type": "string"
+                },
+                "codeGenType": {
+                    "type": "string"
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "createTime": {
+                    "type": "string"
+                },
+                "deployKey": {
+                    "type": "string"
+                },
+                "deployedTime": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "initPrompt": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/vo.UserVo"
+                },
+                "userId": {
+                    "type": "string",
+                    "example": "0"
                 }
             }
         },
