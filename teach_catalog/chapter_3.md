@@ -1269,18 +1269,13 @@ import (
 
 // buildUniqueDir 构建唯一的目录名
 // 目录名格式: {代码生成类型}_{唯一ID}
-func buildUniqueDir(typeStr enum.CodeGenTypeEnum) (string, error) {
-	// 生成雪花id
-	var sf = sonyflake.NewSonyflake(sonyflake.Settings{
-		MachineID: func() (uint16, error) { return 1, nil },
-	})
-	id, err := sf.NextID()
-	if err != nil {
-		return "", err
+func (d *CodeFileSaverTemplate[T]) buildUniqueDir(appId int64) (string, error) {
+	if appId == 0 {
+		return "", fmt.Errorf("应用id不能为空")
 	}
-	// 构建唯一目录名
-	uniqueDirName := fmt.Sprintf("%s_%s", typeStr, strconv.FormatUint(id, 20))
+	//构建唯一目录名
 	fileSaveDir, err := myfile.GetCodeOutputRoot()
+	uniqueDirName := fmt.Sprintf("%s_%s", d.getCodeType(), strconv.FormatUint(uint64(appId), 20))
 	dirPath := filepath.Join(fileSaveDir, uniqueDirName)
 	// 创建目录
 	err = os.MkdirAll(dirPath, os.ModePerm)
