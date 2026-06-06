@@ -5,10 +5,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"net/url"
+	"time"
 	"yikou-ai-go-teach/internal/api"
 	"yikou-ai-go-teach/internal/dal/model"
 	"yikou-ai-go-teach/internal/dal/query"
@@ -21,17 +24,31 @@ import (
 )
 
 type UserService struct {
-	db *gorm.DB
+	db          *gorm.DB
+	redisClient *redis.Client
 }
 
-func NewUserService(db *gorm.DB) *UserService {
+func NewUserService(db *gorm.DB, redisClient *redis.Client) *UserService {
 	return &UserService{
-		db: db,
+		db:          db,
+		redisClient: redisClient,
 	}
 }
 
 func (s *UserService) Logout(ctx context.Context, c *app.RequestContext) error {
-	// 清除Cookie
+	// 1. 获取sessionId
+	sessionId := c.Request.Header.Cookie(constants.UserLoginState)
+	if sessionId == nil {
+		return errorutil.ParamsError.WithMessage("用户未登录")
+	}
+	// 2. URL解码sessionId
+	decodedSessionId, err := url.QueryUnescape(string(sessionId))
+	if err != nil {
+		return err
+	}
+	// 3. 从Redis删除session
+	_ = s.redisClient.Del(ctx, decodedSessionId).Err()
+	// 4. 清除Cookie
 	c.SetCookie(constants.UserLoginState, "", 0, "/", "", protocol.CookieSameSiteLaxMode, false, true)
 	return nil
 }
@@ -83,26 +100,32 @@ func (s *UserService) UserRegister(ctx context.Context, req *api.YiKouUserRegist
 }
 
 func (s *UserService) GetLoginUserVo(ctx context.Context, c *app.RequestContext) (vo.UserVo, error) {
-	// 1. 获取user
-	userJson := c.Request.Header.Cookie(constants.UserLoginState)
-	if userJson == nil || string(userJson) == "" {
+	// 1. 获取sessionId
+	sessionId := c.Request.Header.Cookie(constants.UserLoginState)
+	if sessionId == nil {
+		return vo.UserVo{}, errorutil.ParamsError
+	}
+	// 2. URL解码sessionId
+	decodedSessionId, err := url.QueryUnescape(string(sessionId))
+	if err != nil {
+		return vo.UserVo{}, err
+	}
+	// 3. 从Redis获取用户信息
+	userJson, err := s.redisClient.Get(ctx, decodedSessionId).Result()
+	if err != nil {
 		return vo.UserVo{}, errorutil.ParamsError.WithMessage("登录已过期，请重新登录")
 	}
-	decodeUser, err := url.QueryUnescape(string(userJson))
-	if err != nil {
-		return vo.UserVo{}, err
-	}
 	var user model.User
-	err = json.Unmarshal([]byte(decodeUser), &user)
+	err = json.Unmarshal([]byte(userJson), &user)
 	if err != nil {
 		return vo.UserVo{}, err
 	}
-	// 2. 校验用户是否存在
+	// 4. 校验用户是否存在
 	_, err = query.Use(s.db).User.Where(query.User.ID.Eq(user.ID), query.User.IsDelete.Eq(0)).First()
 	if err != nil {
 		return vo.UserVo{}, err
 	}
-	// 3. 构建 User
+	// 5. 构建 User
 	loginUserVo := vo.UserVo{
 		ID:          user.ID,
 		UserAccount: user.UserAccount,
@@ -320,14 +343,21 @@ func (s *UserService) UserLogin(ctx context.Context, req *api.YiKouUserLoginRequ
 	if user.UserPassword != encryptPassword {
 		return vo.UserVo{}, errorutil.ParamsError.WithMessage("密码错误")
 	}
+	// 4. 生成 sessionId
+	sessionId := fmt.Sprintf("session:%d", time.Now().UnixNano())
+	// 5. 将用户信息转换为json并存入Redis
 	userJson, err := json.Marshal(user)
 	if err != nil {
 		return vo.UserVo{}, err
 	}
-	// 4. 保存sessionId到cookie
-	c.SetCookie(constants.UserLoginState, string(userJson),
+	err = s.redisClient.Set(ctx, sessionId, string(userJson), 24*time.Hour).Err()
+	if err != nil {
+		return vo.UserVo{}, err
+	}
+	// 6. 保存sessionId到cookie
+	c.SetCookie(constants.UserLoginState, sessionId,
 		86400, "/", "", protocol.CookieSameSiteLaxMode, false, true)
-	// 5. 构建userVo对象
+	// 7. 构建userVo对象
 	loginUserVo := vo.UserVo{
 		ID:          user.ID,
 		UserAccount: user.UserAccount,

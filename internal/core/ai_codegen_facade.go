@@ -6,7 +6,7 @@ import (
 	"github.com/cloudwego/eino/schema"
 	"io"
 	"strings"
-	"yikou-ai-go-teach/internal/ai"
+	"yikou-ai-go-teach/internal/ai/agent"
 	"yikou-ai-go-teach/internal/core/parser"
 	"yikou-ai-go-teach/internal/core/saver"
 	"yikou-ai-go-teach/pkg/enum"
@@ -15,23 +15,27 @@ import (
 )
 
 type YiKouAiCodegenFacade struct {
-	codegenService        ai.IYiKouAiCodegenService
+	codeGenFactory        *agent.CodeGenAgentFactory
 	codeParserExecutor    *parser.CodeParserExecutor
 	codeFileSaverExecutor *saver.CodeFileSaverExecutor
 }
 
-func NewYiKouAiCodegenFacade(codegenService ai.IYiKouAiCodegenService,
+func NewYiKouAiCodegenFacade(codeGenFactory *agent.CodeGenAgentFactory,
 	codeParserExecutor *parser.CodeParserExecutor,
 	codeFileSaverExecutor *saver.CodeFileSaverExecutor) *YiKouAiCodegenFacade {
 	return &YiKouAiCodegenFacade{
-		codegenService:        codegenService,
+		codeGenFactory:        codeGenFactory,
 		codeParserExecutor:    codeParserExecutor,
 		codeFileSaverExecutor: codeFileSaverExecutor,
 	}
 }
 
 func (y *YiKouAiCodegenFacade) GenHtmlCodeAndSave(ctx context.Context, userMessage string) error {
-	resp, err := y.codegenService.GenerateHtmlCode(ctx, userMessage)
+	genAgent, err := y.codeGenFactory.GetCodeGenAgent(1, enum.HtmlCodeGen)
+	if err != nil {
+		return err
+	}
+	resp, err := genAgent.GenerateHtmlCode(ctx, userMessage)
 	if err != nil {
 		return err
 	}
@@ -44,7 +48,11 @@ func (y *YiKouAiCodegenFacade) GenHtmlCodeAndSave(ctx context.Context, userMessa
 }
 
 func (y *YiKouAiCodegenFacade) GenMultiFileCodeAndSave(ctx context.Context, userMessage string) error {
-	resp, err := y.codegenService.GenerateMultiFileCode(ctx, userMessage)
+	genAgent, err := y.codeGenFactory.GetCodeGenAgent(1, enum.HtmlCodeGen)
+	if err != nil {
+		return err
+	}
+	resp, err := genAgent.GenerateMultiFileCode(ctx, userMessage)
 	if err != nil {
 		return err
 	}
@@ -67,8 +75,12 @@ func (y *YiKouAiCodegenFacade) GenCodeAndSave(ctx context.Context, userMessage s
 	}
 }
 
-func (y *YiKouAiCodegenFacade) GenHtmlCodeStreamAndSave(ctx context.Context, userMessage string) error {
-	streamResp, err := y.codegenService.GenerateHtmlCodeStream(ctx, userMessage)
+func (y *YiKouAiCodegenFacade) GenHtmlCodeStreamAndSave(ctx context.Context, appId int64, userMessage string) error {
+	genAgent, err := y.codeGenFactory.GetCodeGenAgent(appId, enum.HtmlCodeGen)
+	if err != nil {
+		return err
+	}
+	streamResp, err := genAgent.GenerateHtmlCodeStream(ctx, userMessage)
 	if err != nil {
 		return err
 	}
@@ -94,8 +106,12 @@ func (y *YiKouAiCodegenFacade) GenHtmlCodeStreamAndSave(ctx context.Context, use
 	return nil
 }
 
-func (y *YiKouAiCodegenFacade) GenMultiFileCodeStreamAndSave(ctx context.Context, userMessage string) error {
-	streamResp, err := y.codegenService.GenerateMultiFileCodeStream(ctx, userMessage)
+func (y *YiKouAiCodegenFacade) GenMultiFileCodeStreamAndSave(ctx context.Context, appId int64, userMessage string) error {
+	genAgent, err := y.codeGenFactory.GetCodeGenAgent(appId, enum.HtmlCodeGen)
+	if err != nil {
+		return err
+	}
+	streamResp, err := genAgent.GenerateMultiFileCodeStream(ctx, userMessage)
 	if err != nil {
 		return err
 	}
@@ -158,15 +174,19 @@ func (y *YiKouAiCodegenFacade) processCodeStream(respStream *schema.StreamReader
 }
 
 func (y *YiKouAiCodegenFacade) GenCodeStreamAndSave(ctx context.Context, userMessage string, typeStr enum.CodeGenTypeEnum, appId int64) (*schema.StreamReader[*schema.Message], error) {
+	genAgent, err := y.codeGenFactory.GetCodeGenAgent(appId, enum.HtmlCodeGen)
+	if err != nil {
+		return nil, err
+	}
 	switch typeStr {
 	case enum.HtmlCodeGen:
-		streamResp, err := y.codegenService.GenerateHtmlCodeStream(ctx, userMessage)
+		streamResp, err := genAgent.GenerateHtmlCodeStream(ctx, userMessage)
 		if err != nil {
 			return nil, err
 		}
 		return y.processCodeStream(streamResp, typeStr, appId)
 	case enum.MultiFileGen:
-		streamResp, err := y.codegenService.GenerateMultiFileCodeStream(ctx, userMessage)
+		streamResp, err := genAgent.GenerateMultiFileCodeStream(ctx, userMessage)
 		if err != nil {
 			return nil, err
 		}

@@ -18,7 +18,7 @@ func TestYiKouAiCodegenFacade_GenCodeAndSave(t *testing.T) {
 	// 解析命令行参数
 	initConfig := config.InitConfig()
 	chatModel := llm.NewChatModel(initConfig)
-	codeGenAgent := agent.NewCodeGenAgent(chatModel, enum.MultiFileGen)
+	codeGenAgent := agent.NewCodeGenAgent(chatModel, enum.MultiFileGen, nil)
 	parserExecutor := parser.NewCodeParserExecutor()
 	fileSaverExecutor := saver.NewCodeFileSaverExecutor()
 	aiCodegenFacade := NewYiKouAiCodegenFacade(codeGenAgent, parserExecutor, fileSaverExecutor)
@@ -33,7 +33,7 @@ func TestYiKouAiCodegenFacade_GenCodeStreamAndSave(t *testing.T) {
 	// 解析命令行参数
 	initConfig := config.InitConfig()
 	chatModel := llm.NewChatModel(initConfig)
-	codeGenAgent := agent.NewCodeGenAgent(chatModel, enum.MultiFileGen)
+	codeGenAgent := agent.NewCodeGenAgent(chatModel, enum.MultiFileGen, nil)
 	parserExecutor := parser.NewCodeParserExecutor()
 	fileSaverExecutor := saver.NewCodeFileSaverExecutor()
 	aiCodegenFacade := NewYiKouAiCodegenFacade(codeGenAgent, parserExecutor, fileSaverExecutor)

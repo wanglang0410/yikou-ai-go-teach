@@ -24,6 +24,7 @@
 - **第2章**：[后端项目用户模块搭建](./teach_catalog/chapter_2.md)
 - **第3章**：[用Eino实现AI应用生成逻辑设计](./teach_catalog/chapter_3.md)
 - **第4章**：[后端项目应用模块搭建](./teach_catalog/chapter_4.md)
+- **第5章：**[后端项目基于Eino对话记忆的对话历史模块搭建](./teach_catalog/chapter_5.md)
 
 ### 学习建议
 

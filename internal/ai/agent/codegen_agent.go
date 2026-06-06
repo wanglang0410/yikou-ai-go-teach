@@ -7,14 +7,15 @@ import (
 	"yikou-ai-go-teach/internal/ai/aimodel"
 	"yikou-ai-go-teach/internal/ai/llm"
 	"yikou-ai-go-teach/internal/ai/myprompt"
+	"yikou-ai-go-teach/internal/store"
 	"yikou-ai-go-teach/pkg/enum"
 
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/cloudwego/eino/adk"
 )
 
-func NewCodeGenAgent(chatModel ChatModelWrapperAdaptor, codeGenType enum.CodeGenTypeEnum) *CodeGenAgent {
-	baseAgent := NewBaseAgent(chatModel)
+func NewCodeGenAgent(chatModel ChatModelWrapperAdaptor, codeGenType enum.CodeGenTypeEnum, memoryStore store.MemoryStore) *CodeGenAgent {
+	baseAgent := NewBaseAgent(chatModel, memoryStore)
 	return &CodeGenAgent{
 		BaseAgent: baseAgent,
 		agentType: codeGenType,
@@ -22,7 +23,7 @@ func NewCodeGenAgent(chatModel ChatModelWrapperAdaptor, codeGenType enum.CodeGen
 }
 
 func NewTestCodeGenAgent(chatModel *llm.ChatModelWrapper) *CodeGenAgent {
-	baseAgent := NewBaseAgent(chatModel)
+	baseAgent := NewBaseAgent(chatModel, nil)
 	return &CodeGenAgent{
 		BaseAgent: baseAgent,
 		agentType: enum.HtmlCodeGen,
@@ -106,7 +107,6 @@ func (a *CodeGenAgent) GenerateHtmlCodeStream(ctx context.Context, userMessage s
 	if err != nil {
 		return nil, err
 	}
-
 	adkAgent := a.getAdkAgent()
 	return a.GenerateStream(ctx, userMessage, chatTemplate, adkAgent)
 }

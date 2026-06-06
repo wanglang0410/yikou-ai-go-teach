@@ -16,6 +16,7 @@ import (
 	"yikou-ai-go-teach/internal/dal/model"
 	"yikou-ai-go-teach/internal/dal/vo"
 	"yikou-ai-go-teach/internal/service"
+	"yikou-ai-go-teach/pkg/enum"
 	"yikou-ai-go-teach/pkg/errorutil"
 	"yikou-ai-go-teach/pkg/request"
 	"yikou-ai-go-teach/pkg/response"
@@ -27,17 +28,20 @@ type StreamContext struct {
 }
 
 type AppHandler struct {
-	appService  service.IAppService
-	userService service.IUserService
+	appService         service.IAppService
+	userService        service.IUserService
+	chatHistoryService service.IChatHistoryService
 }
 
 func NewAppHandler(
 	appService service.IAppService,
 	userService service.IUserService,
+	chatHistoryService service.IChatHistoryService,
 ) *AppHandler {
 	return &AppHandler{
-		appService:  appService,
-		userService: userService,
+		appService:         appService,
+		userService:        userService,
+		chatHistoryService: chatHistoryService,
 	}
 }
 
@@ -128,6 +132,11 @@ func (a *AppHandler) ChatToGenCode(ctx context.Context, c *app.RequestContext) {
 			_ = w.WriteEvent(lastEventID, "done", []byte{1})
 			return
 		}
+	}
+
+	err = a.chatHistoryService.AddChatMessage(ctx, appId, aiResponseBuilder.String(), enum.AIMessageType, userVo.ID)
+	if err != nil {
+		logger.Errorf("保存对话历史失败: %v\n", err)
 	}
 
 	_ = w.WriteEvent(lastEventID, "done", []byte{1})

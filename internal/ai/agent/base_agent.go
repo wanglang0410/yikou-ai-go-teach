@@ -8,7 +8,9 @@ import (
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"
+	"github.com/redis/go-redis/v9"
 	"io"
+	"yikou-ai-go-teach/internal/store"
 )
 
 type ChatModelWrapperAdaptor interface {
@@ -17,14 +19,16 @@ type ChatModelWrapperAdaptor interface {
 }
 
 type BaseAgent struct {
-	model     *openai.ChatModel
-	modelName string
+	model       *openai.ChatModel
+	modelName   string
+	memoryStore store.MemoryStore
 }
 
-func NewBaseAgent(chatModel ChatModelWrapperAdaptor) *BaseAgent {
+func NewBaseAgent(chatModel ChatModelWrapperAdaptor, memoryStore store.MemoryStore) *BaseAgent {
 	return &BaseAgent{
-		model:     chatModel.GetChatModel(),
-		modelName: chatModel.GetModelName(),
+		model:       chatModel.GetChatModel(),
+		modelName:   chatModel.GetModelName(),
+		memoryStore: memoryStore,
 	}
 }
 
@@ -97,9 +101,23 @@ func (a *BaseAgent) Generate(ctx context.Context, userMessage string, chatTempla
 }
 
 func (a *BaseAgent) GenerateStream(ctx context.Context, userMessage string, chatTemplate prompt.ChatTemplate, adkAgent *adk.ChatModelAgent) (*schema.StreamReader[*schema.Message], error) {
+	messages, err := a.memoryStore.GetMessages(ctx)
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			messages = []*schema.Message{}
+		} else {
+			return nil, err
+		}
+	}
 	format, err := chatTemplate.Format(ctx, map[string]any{
 		"content": userMessage,
+		"history": messages,
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = a.memoryStore.AppendMessage(ctx, schema.UserMessage(userMessage))
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +163,10 @@ func (a *BaseAgent) GenerateStream(ctx context.Context, userMessage string, chat
 					}
 				}
 			}
+		}
+		err := a.memoryStore.AppendMessage(ctx, schema.AssistantMessage(fullContent, nil))
+		if err != nil {
+			logger.Errorf("保存对话记忆失败: %v", err)
 		}
 	}()
 

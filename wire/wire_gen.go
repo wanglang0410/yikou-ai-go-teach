@@ -11,11 +11,11 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/google/wire"
 	"github.com/hertz-contrib/swagger"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"strconv"
 	"yikou-ai-go-teach/config"
 	"yikou-ai-go-teach/docs"
-	"yikou-ai-go-teach/internal/ai"
 	"yikou-ai-go-teach/internal/ai/agent"
 	"yikou-ai-go-teach/internal/ai/llm"
 	"yikou-ai-go-teach/internal/core"
@@ -34,16 +34,19 @@ import (
 func InitializeApp() (*server.Hertz, error) {
 	configConfig := config.InitConfig()
 	db := dal.InitDB(configConfig)
-	userService := logic.NewUserService(db)
+	client := dal.InitRedis(configConfig)
+	userService := logic.NewUserService(db, client)
 	userHandler := handler.NewUserHandler(userService)
 	chatModelWrapper := llm.NewChatModel(configConfig)
-	codeGenAgent := agent.NewTestCodeGenAgent(chatModelWrapper)
+	chatHistoryService := logic.NewChatHistoryService(db)
+	codeGenAgentFactory := agent.NewCodeGenAgentFactory(chatModelWrapper, client, chatHistoryService)
 	codeParserExecutor := parser.NewCodeParserExecutor()
 	codeFileSaverExecutor := saver.NewCodeFileSaverExecutor()
-	yiKouAiCodegenFacade := core.NewYiKouAiCodegenFacade(codeGenAgent, codeParserExecutor, codeFileSaverExecutor)
-	appService := logic.NewAppService(yiKouAiCodegenFacade, userService, db)
-	appHandler := handler.NewAppHandler(appService, userService)
-	hertz := initServer(configConfig, userHandler, appHandler, db)
+	yiKouAiCodegenFacade := core.NewYiKouAiCodegenFacade(codeGenAgentFactory, codeParserExecutor, codeFileSaverExecutor)
+	appService := logic.NewAppService(yiKouAiCodegenFacade, userService, chatHistoryService, db)
+	appHandler := handler.NewAppHandler(appService, userService, chatHistoryService)
+	chatHistoryHandler := handler.NewChatHistoryHandler(chatHistoryService, userService)
+	hertz := initServer(configConfig, userHandler, appHandler, db, client, chatHistoryHandler)
 	return hertz, nil
 }
 
@@ -55,17 +58,17 @@ var configSet = wire.NewSet(config.InitConfig)
 var llmSet = wire.NewSet(llm.NewChatModel)
 
 // 数据库依赖
-var dbSet = wire.NewSet(dal.InitDB)
+var dbSet = wire.NewSet(dal.InitDB, dal.InitRedis)
 
 // Service依赖
-var serviceSet = wire.NewSet(core.NewYiKouAiCodegenFacade, logic.NewAppService, wire.Bind(new(service.IAppService), new(*logic.AppService)), logic.NewUserService, wire.Bind(new(service.IUserService), new(*logic.UserService)), agent.NewTestCodeGenAgent, wire.Bind(new(ai.IYiKouAiCodegenService), new(*agent.CodeGenAgent)))
+var serviceSet = wire.NewSet(logic.NewAppService, wire.Bind(new(service.IAppService), new(*logic.AppService)), logic.NewUserService, wire.Bind(new(service.IUserService), new(*logic.UserService)), logic.NewChatHistoryService, wire.Bind(new(service.IChatHistoryService), new(*logic.ChatHistoryService)))
 
 // Handler依赖
-var handlerSet = wire.NewSet(handler.NewUserHandler, handler.NewAppHandler)
+var handlerSet = wire.NewSet(handler.NewUserHandler, handler.NewAppHandler, handler.NewChatHistoryHandler)
 
 // initServer 初始化 Web 服务器
 func initServer(cfg *config.Config, userHandler *handler.UserHandler, appHandler *handler.AppHandler,
-	db *gorm.DB) *server.Hertz {
+	db *gorm.DB, redisClient *redis.Client, chatHistoryHandler *handler.ChatHistoryHandler) *server.Hertz {
 	docs.SwaggerInfo.
 		Host = fmt.Sprintf("localhost:%d", cfg.Server.Port)
 	docs.SwaggerInfo.
@@ -75,6 +78,6 @@ func initServer(cfg *config.Config, userHandler *handler.UserHandler, appHandler
 	url := swagger.URL(swaggerPath)
 
 	h := server.Default(server.WithHostPorts(":"+strconv.Itoa(cfg.Server.Port)), server.WithBasePath(cfg.Server.ContextPath))
-	router.RegisterRoutes(h, url, db, userHandler, appHandler)
+	router.RegisterRoutes(h, url, db, redisClient, userHandler, appHandler, chatHistoryHandler)
 	return h
 }

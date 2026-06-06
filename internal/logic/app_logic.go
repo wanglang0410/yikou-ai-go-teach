@@ -22,19 +22,22 @@ import (
 func NewAppService(
 	aiCodeGenFacade *core.YiKouAiCodegenFacade,
 	userService service.IUserService,
+	chatHistoryService service.IChatHistoryService,
 	db *gorm.DB,
 ) *AppService {
 	return &AppService{
-		aiCodeGenFacade: aiCodeGenFacade,
-		userService:     userService,
-		db:              db,
+		aiCodeGenFacade:    aiCodeGenFacade,
+		userService:        userService,
+		chatHistoryService: chatHistoryService,
+		db:                 db,
 	}
 }
 
 type AppService struct {
-	aiCodeGenFacade *core.YiKouAiCodegenFacade
-	userService     service.IUserService
-	db              *gorm.DB
+	aiCodeGenFacade    *core.YiKouAiCodegenFacade
+	userService        service.IUserService
+	chatHistoryService service.IChatHistoryService
+	db                 *gorm.DB
 }
 
 func (s *AppService) ChatToGenCode(ctx context.Context, appId int64, message string, loginUser *vo.UserVo) (*schema.StreamReader[*schema.Message], error) {
@@ -58,7 +61,12 @@ func (s *AppService) ChatToGenCode(ctx context.Context, appId int64, message str
 	if enum.CodeGenTypeTextMap[enum.CodeGenTypeEnum(app.CodeGenType)] == "" {
 		return nil, errorutil.ParamsError.WithMessage("应用代码生成类型不支持")
 	}
-	// 5. 调用代码生成服务
+	// 5. 将用户消息保存到对话记录
+	err = s.chatHistoryService.AddChatMessage(ctx, appId, message, enum.UserMessageType, loginUser.ID)
+	if err != nil {
+		logger.Errorf("保存对话历史失败: %v\n", err)
+	}
+	// 6. 调用代码生成服务
 	return s.aiCodeGenFacade.GenCodeStreamAndSave(ctx, message, enum.CodeGenTypeEnum(app.CodeGenType), appId)
 }
 
@@ -141,6 +149,11 @@ func (s *AppService) DeleteApp(ctx context.Context, id int64, userId int64) (boo
 	_, err = query.Use(s.db).App.Where(query.App.ID.Eq(id)).Update(query.App.IsDelete, 1)
 	if err != nil {
 		return false, err
+	}
+
+	err = s.chatHistoryService.DeleteByAppId(ctx, id)
+	if err != nil {
+		logger.Errorf("对话历史删除失败: %v\n", err)
 	}
 	return true, nil
 }
