@@ -1,0 +1,25 @@
+# Kubernetes 环境配置（集群内使用 -env=k8s 加载）
+
+server:
+  port: 8123
+  context_path: /api
+
+database:
+  host: mysql
+  port: 3306
+  username: root
+  password: yikou123456
+  database: yikou_ai
+  charset: utf8mb4
+
+ai:
+  chat-model:
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    api-key: changeme
+    model-name: qwen3.5-plus
+
+redis:
+  host: redis
+  port: 6379
+  password: ""
+  db: 0

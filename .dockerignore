@@ -1,0 +1,9 @@
+.git
+.idea
+.vscode
+tmp
+yikou-ai-feiwu-front/node_modules
+yikou-ai-feiwu-front/dist
+*.md
+teach_catalog
+agent-transcripts
