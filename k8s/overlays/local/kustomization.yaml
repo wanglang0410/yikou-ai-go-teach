@@ -7,3 +7,5 @@ resources:
 patches:
   - path: frontend-nodeport-patch.yaml
   - path: backend-nodeport-patch.yaml
+  - path: mysql-nodeport-patch.yaml
+  - path: redis-nodeport-patch.yaml

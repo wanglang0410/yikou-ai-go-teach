@@ -269,4 +269,22 @@ go test ./...
 
 ---
 
+## 13. Kubernetes 部署
+
+完整 K8s 部署、访问、重建与故障排查说明见 **[K8S_DEPLOY.md](./K8S_DEPLOY.md)**。
+
+快速启动：
+
+```powershell
+minikube start --driver=docker --image-mirror-country=cn --preload=false
+powershell -ExecutionPolicy Bypass -File .\k8s\deploy.ps1
+kubectl port-forward -n yikou-ai svc/frontend 30080:80
+kubectl port-forward -n yikou-ai svc/backend 30123:8123
+```
+
+- 前端：http://localhost:30080
+- 后端：http://localhost:30123/api/ping
+
+---
+
 如有问题，可参考各章 `teach_catalog` 详细教程，或查阅 Swagger 在线文档。
